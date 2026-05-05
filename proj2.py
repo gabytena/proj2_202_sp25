@@ -52,7 +52,7 @@ def read_csv_lines(filename: str) -> Optional[Node]:
             "total_co2_emissions_excluding_lucf_per_capita"]
 
 
-    if row[0] or rows != head:
+    if rows[0] or rows != head:
         return None
     
     def linked_list(idx: int) ->Optional(Node):
@@ -74,4 +74,33 @@ def filter_rows(data: Optional[Node],
                 field_name: str,
                 comparison: str,
                 value: Union[str, float, int]) -> Optional[Node]:
-    pass
+    if data is None:
+        return None
+    
+    remainder = filter_rows(data.next, field_name, comparison, value)
+
+    field_attr = getattr(data.value, field_name)
+
+    if field_attr is None:
+        return remainder
+    
+    if field_attr == "country":
+        if comparison != "equal":
+            raise ValueError("country must be equal")
+        
+        if field_attr == value:
+            return Node(data.value, remainder)
+        
+    if comparison == "less_than":
+        keep = field_attr < value
+    elif comparison == "greater_than":
+        keep = field_attr > value
+    elif comparison == "equal":
+        keep = field_attr == value
+    else: 
+        raise ValueError("not comparable")
+
+    if keep:
+        return Node(data.value, remainder)
+    
+    return remainder
